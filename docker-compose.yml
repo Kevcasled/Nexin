@@ -1,0 +1,74 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: mvc_app
+    ports:
+      - "8080:80"
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - db
+    networks:
+      - mvc_net
+
+  db:
+    image: mysql:8.0
+    container_name: mvc_db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=blog_db
+      - MYSQL_USER=blog_user
+      - MYSQL_PASSWORD=blog_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database.sql:/docker-entrypoint-initdb.d/01-database.sql:ro
+    networks:
+      - mvc_net
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: mvc_phpmyadmin
+    restart: unless-stopped
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=blog_user
+      - PMA_PASSWORD=blog_pass
+    ports:
+      - "8081:80"
+    depends_on:
+      - db
+    networks:
+      - mvc_net
+
+  n8n:
+    image: n8nio/n8n
+    container_name: mvc_n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      - N8N_SECURE_COOKIE=false
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - mvc_net
+
+volumes:
+  db_data:
+  n8n_data:
+
+networks:
+  mvc_net:
+    driver: bridge

@@ -1,0 +1,21 @@
+# Dependencias
+/vendor/
+/node_modules/
+
+# Variables de entorno (contiene credenciales)
+.env
+
+# Archivos subidos por usuarios
+/uploads/*
+!/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
