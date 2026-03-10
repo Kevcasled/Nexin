@@ -5,12 +5,6 @@
         <h1>Iniciar Sesión</h1>
         <p class="auth-subtitle">Accede a tu cuenta de Nexin</p>
         
-        <?php if (isset($error)): ?>
-            <div style="background: rgba(229,9,20,0.15); border: 1px solid rgba(229,9,20,0.3); color: #ff6b6b; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px;">
-                <?= htmlspecialchars($error) ?>
-            </div>
-        <?php endif; ?>
-        
         <form action="index.php?action=login" method="POST" class="auth-form">
             <?= Csrf::insertHiddenField() ?>
             

@@ -1,13 +1,7 @@
-<?php 
-include __DIR__ . '/../layout/header.php'; 
-require_once __DIR__ . '/../../config/Database.php';
-require_once __DIR__ . '/../../models/Comment.php';
+<?php
+include __DIR__ . '/../layout/header.php';
 require_once __DIR__ . '/../../utils/Auth.php';
-
-$database = new Database();
-$db = $database->getConnection();
-$commentModel = new Comment($db);
-$comments = $commentModel->getByPostId($post['id']);
+// $post and $comments are passed from PostController::show()
 ?>
 
 <!-- Mini hero for the post -->
@@ -18,7 +12,7 @@ $comments = $commentModel->getByPostId($post['id']);
         <?php endif; ?>
         <h1 style="font-size: 3rem;"><?= htmlspecialchars($post['title']) ?></h1>
         <p class="description">
-            Por <strong><?= htmlspecialchars($post['username']) ?></strong> 
+            Por <strong><?= htmlspecialchars($post['username']) ?></strong>
             · <?= date('d/m/Y', strtotime($post['created_at'])) ?>
             <?php if ($post['status'] === 'draft'): ?>
                 · <span style="color: #ffa500; font-weight: 600;">BORRADOR</span>
@@ -34,13 +28,13 @@ $comments = $commentModel->getByPostId($post['id']);
             <div style="color: #b3b3b3; line-height: 1.8; font-size: 1.05rem; white-space: pre-wrap;">
 <?= nl2br(htmlspecialchars($post['content'])) ?>
             </div>
-            
+
             <?php if (Auth::canModify($post['user_id'])): ?>
                 <div style="display: flex; gap: 15px; margin-top: 30px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1);">
                     <a href="index.php?action=edit_post&id=<?= $post['id'] ?>" class="btn-primary" style="text-decoration: none; padding: 12px 28px; font-size: 0.95rem;">
                         ✏️ Editar
                     </a>
-                    <form action="index.php?action=delete_post&id=<?= $post['id'] ?>" method="POST" 
+                    <form action="index.php?action=delete_post&id=<?= $post['id'] ?>" method="POST"
                           onsubmit="return confirm('¿Estás seguro de eliminar esta reseña?')">
                         <?= Csrf::insertHiddenField() ?>
                         <button type="submit" class="btn-secondary" style="cursor: pointer; color: #ff6b6b; border-color: rgba(229,9,20,0.3);">
@@ -51,11 +45,11 @@ $comments = $commentModel->getByPostId($post['id']);
             <?php endif; ?>
         </div>
     </article>
-    
+
     <!-- Comments section -->
     <div class="sidebar-section" style="border-radius: 20px; padding: 30px; margin-top: 30px;">
         <h3>Comentarios (<?= count($comments) ?>)</h3>
-        
+
         <?php if (Auth::isLoggedIn()): ?>
             <form action="index.php?action=store_comment" method="POST" style="margin-bottom: 25px;">
                 <?= Csrf::insertHiddenField() ?>
@@ -70,12 +64,12 @@ $comments = $commentModel->getByPostId($post['id']);
         <?php else: ?>
             <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 25px;">
                 <p style="color: #b3b3b3;">
-                    <a href="index.php?action=login" style="color: #E50914; text-decoration: none; font-weight: 600;">Inicia sesión</a> 
+                    <a href="index.php?action=login" style="color: #E50914; text-decoration: none; font-weight: 600;">Inicia sesión</a>
                     para dejar un comentario
                 </p>
             </div>
         <?php endif; ?>
-        
+
         <div style="display: flex; flex-direction: column; gap: 15px;">
             <?php foreach ($comments as $comment): ?>
                 <div style="border-left: 4px solid #E50914; padding: 15px 20px; background: rgba(255,255,255,0.03); border-radius: 0 12px 12px 0;">
@@ -97,13 +91,13 @@ $comments = $commentModel->getByPostId($post['id']);
                     <p style="color: #b3b3b3; line-height: 1.6;"><?= nl2br(htmlspecialchars($comment['text'])) ?></p>
                 </div>
             <?php endforeach; ?>
-            
+
             <?php if (empty($comments)): ?>
                 <p style="text-align: center; color: #666; padding: 30px;">No hay comentarios aún. ¡Sé el primero en comentar!</p>
             <?php endif; ?>
         </div>
     </div>
-    
+
     <!-- Back button -->
     <div style="text-align: center; margin-top: 20px;">
         <a href="index.php?action=posts" class="read-more" style="font-size: 1rem;">← Volver al Inicio</a>

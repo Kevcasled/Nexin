@@ -75,35 +75,23 @@ class Post {
     /** Actualiza post existente */
     public function update($id, $categoryId, $title, $content, $imagePath = null, $status = null) {
         try {
-            if ($imagePath && $status) {
-                $stmt = $this->db->prepare("
-                    UPDATE posts 
-                    SET category_id = ?, title = ?, content = ?, image_path = ?, status = ?
-                    WHERE id = ?
-                ");
-                return $stmt->execute([$categoryId, $title, $content, $imagePath, $status, $id]);
-            } elseif ($imagePath) {
-                $stmt = $this->db->prepare("
-                    UPDATE posts 
-                    SET category_id = ?, title = ?, content = ?, image_path = ?
-                    WHERE id = ?
-                ");
-                return $stmt->execute([$categoryId, $title, $content, $imagePath, $id]);
-            } elseif ($status) {
-                $stmt = $this->db->prepare("
-                    UPDATE posts 
-                    SET category_id = ?, title = ?, content = ?, status = ?
-                    WHERE id = ?
-                ");
-                return $stmt->execute([$categoryId, $title, $content, $status, $id]);
-            } else {
-                $stmt = $this->db->prepare("
-                    UPDATE posts 
-                    SET category_id = ?, title = ?, content = ?
-                    WHERE id = ?
-                ");
-                return $stmt->execute([$categoryId, $title, $content, $id]);
+            $fields = ['category_id = ?', 'title = ?', 'content = ?'];
+            $params = [$categoryId, $title, $content];
+
+            if ($imagePath !== null) {
+                $fields[] = 'image_path = ?';
+                $params[] = $imagePath;
             }
+
+            if ($status !== null) {
+                $fields[] = 'status = ?';
+                $params[] = $status;
+            }
+
+            $params[] = $id;
+            $sql = 'UPDATE posts SET ' . implode(', ', $fields) . ' WHERE id = ?';
+            $stmt = $this->db->prepare($sql);
+            return $stmt->execute($params);
         } catch(PDOException $e) {
             error_log("Error updating post: " . $e->getMessage());
             return false;

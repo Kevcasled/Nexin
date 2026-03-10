@@ -65,9 +65,10 @@ class Retriever {
             LEFT JOIN categories c ON p.category_id = c.id
             WHERE p.status = 'published' AND ($whereClause)
             ORDER BY p.created_at DESC
-            LIMIT $limit
+            LIMIT ?
         ";
 
+        $params[] = (int)$limit;
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -20,7 +20,6 @@ class HttpClient {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => $timeout,
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_SSL_VERIFYPEER => false,
         ]);
 
         $response = curl_exec($ch);
@@ -67,7 +66,6 @@ class HttpClient {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT        => $timeout,
             CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_SSL_VERIFYPEER => false,
         ]);
 
         $response = curl_exec($ch);

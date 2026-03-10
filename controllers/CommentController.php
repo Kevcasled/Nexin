@@ -20,24 +20,30 @@ class CommentController {
     /** Guarda comentario (POST) */
     public function store() {
         Auth::requireLogin();
-        
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: index.php?action=posts');
             exit();
         }
-        
+
         Csrf::verify();
-        
+
         $validator = new Validator();
-        $postId = $_POST['post_id'] ?? null;
+        $postId = (int)($_POST['post_id'] ?? 0);
         $text = $_POST['text'] ?? '';
-        
+
+        if ($postId <= 0) {
+            Flash::error('Post inválido');
+            header('Location: index.php?action=posts');
+            exit();
+        }
+
         $validator->required('text', $text, 'El comentario');
         $validator->minLength('text', $text, 5, 'El comentario');
-        
-        if (!$validator->hasErrors() && $postId) {
+
+        if (!$validator->hasErrors()) {
             $result = $this->commentModel->insert($postId, $_SESSION['user_id'], $text);
-            
+
             if ($result) {
                 Flash::success('Comentario publicado exitosamente');
             } else {
@@ -46,7 +52,7 @@ class CommentController {
         } else {
             Flash::error($validator->getFirstError() ?? 'Datos inválidos');
         }
-        
+
         header('Location: index.php?action=show_post&id=' . $postId);
         exit();
     }
@@ -54,28 +60,34 @@ class CommentController {
     /** Elimina comentario por ID */
     public function delete($id) {
         Auth::requireLogin();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: index.php?action=posts');
+            exit();
+        }
+
         Csrf::verify();
-        
+
         $comment = $this->commentModel->findById($id);
-        
+
         if (!$comment) {
             Flash::error('Comentario no encontrado');
             header('Location: index.php?action=posts');
             exit();
         }
-        
+
         if (!Auth::canModify($comment['user_id'])) {
             Flash::error('No tienes permisos para eliminar este comentario');
             header('Location: index.php?action=show_post&id=' . $comment['post_id']);
             exit();
         }
-        
+
         if ($this->commentModel->delete($id)) {
             Flash::success('Comentario eliminado exitosamente');
         } else {
             Flash::error('Error al eliminar el comentario');
         }
-        
+
         header('Location: index.php?action=show_post&id=' . $comment['post_id']);
         exit();
     }

@@ -34,7 +34,7 @@ require_once 'controllers/RagController.php';
 require_once 'utils/Csrf.php';
 
 $action = $_GET['action'] ?? 'posts';
-$id = $_GET['id'] ?? null;
+$id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
 // Router
 switch ($action) {
